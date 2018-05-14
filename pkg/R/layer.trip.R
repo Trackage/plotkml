@@ -3,7 +3,12 @@
 ## * check features available by default
 ## * add man/ documentation
 ## * 
-setMethod("plotKML", "trip", function(obj, folder.name = normalizeFilename(deparse(substitute(obj, env=parent.frame()))), file.name = paste(folder.name, ".kml", sep=""), colour, start.icon = "http://maps.google.com/mapfiles/kml/pal2/icon18.png", kmz = get("kmz", envir = plotKML.opts), open.kml = TRUE, ...){
+setMethod("plotKML", "trip", function(obj, 
+                                      folder.name = normalizeFilename(deparse(substitute(obj, env=parent.frame()))),
+                                      file.name = paste(folder.name, ".kml", sep=""), 
+                                      colour, 
+                                      start.icon = "http://maps.google.com/mapfiles/kml/pal2/icon18.png", 
+                                      kmz = get("kmz", envir = plotKML.opts), open.kml = TRUE, ...){
   
   # Guess aesthetics if missing:
   if(missing(colour)){ 
@@ -76,7 +81,7 @@ kml_layer.trip <- function(
   
   # object ID names:
   lv <- levels(as.factor(obj@data[,id.name]))
-  line.colours <- hex2kml(brewer.pal(n=2+length(lv), name = "Set1"))
+  line.colours <- hex2kml(rainbow(n=2+length(lv)))  ## brewer.pal can't do many colours so choose this bad one for now
   ## names of the coordinate columns:
   nc <- replicate(length(lv), attr(obj@coords, "dimname")[[2]], simplify = FALSE)
   ## strip times:
@@ -114,7 +119,7 @@ kml_layer.trip <- function(
   ldist <- NULL
   coords <- NULL
   
-  objxy <- split(obj, obj[[id.name]])[id.name] ## don't fall for lex-sort trap
+  objxy <- split(obj, as.character(obj[[id.name]]))[unique(as.character(obj[[id.name]]))] ## don't fall for lex-sort trap
   for (i.line in 1:length(lv)) {  # for each line
     
     cfd <- data.frame(coordinates(objxy[[i.line]]))
