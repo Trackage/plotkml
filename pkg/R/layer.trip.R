@@ -1,4 +1,8 @@
 ## Trips: 
+## TODO: 
+## * check features available by default
+## * add man/ documentation
+## * 
 setMethod("plotKML", "trip", function(obj, folder.name = normalizeFilename(deparse(substitute(obj, env=parent.frame()))), file.name = paste(folder.name, ".kml", sep=""), colour, start.icon = "http://maps.google.com/mapfiles/kml/pal2/icon18.png", kmz = get("kmz", envir = plotKML.opts), open.kml = TRUE, ...){
   
   # Guess aesthetics if missing:
@@ -110,7 +114,7 @@ kml_layer.trip <- function(
   ldist <- NULL
   coords <- NULL
   
-  objxy <- split(obj, obj[[id.name]])
+  objxy <- split(obj, obj[[id.name]])[id.name] ## don't fall for lex-sort trap
   for (i.line in 1:length(lv)) {  # for each line
     
     cfd <- data.frame(coordinates(objxy[[i.line]]))
