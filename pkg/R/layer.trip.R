@@ -191,6 +191,6 @@ kml_layer.trip <- function(
   assign('kml.out', kml.out, envir=plotKML.fileIO)
 }
 
-setMethod("kml_layer", "STTDF", kml_layer.STTDF)
+setMethod("kml_layer", "trip", kml_layer.trip)
 
 # end of script;
