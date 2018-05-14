@@ -1,6 +1,6 @@
 This is a fork of plotKML from R-forge. 
 
-If you are born to have adventure, the trip branch has a method for `plotKML` for `trip` objects (from the `trip` package). 
+If you were born to have adventure, the trip branch has a method for `plotKML` for `trip` objects (from the [trip](https://CRAN.R-project.org/package=enpls) package). 
 
 
 ```R
