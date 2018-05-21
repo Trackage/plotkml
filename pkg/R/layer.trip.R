@@ -3,6 +3,8 @@
 ## * check features available by default
 ## * add man/ documentation
 ## * 
+
+
 setMethod("plotKML", "trip", function(obj, 
                                       folder.name = normalizeFilename(deparse(substitute(obj, env=parent.frame()))),
                                       file.name = paste(folder.name, ".kml", sep=""), 
@@ -163,17 +165,17 @@ kml_layer.trip <- function(
   
   # for each line:  
   nx <- 0
-  
   for (i.line in 1:length(lv)) {
     pl2 = newXMLNode("Folder", parent=pl1)
     pl3 <- newXMLNode("name", lv[i.line], parent = pl2)
-    
+    #browser()
     nx <- nx + nt[i.line]
     n1 <- nx - nt[i.line]
     # Parse point coordinates:
     ## TH: I do not know how to make the following code more compact.
     if(length(html.table)>0 & all(dtime==0)){  # with attributes / point temporal support  
-      txtl <- sprintf('<Placemark><styleUrl>#pnt_%s</styleUrl><description><![CDATA[%s]]></description><TimeStamp><when>%s</when></TimeStamp><Point><extrude>%.0f</extrude><altitudeMode>%s</altitudeMode><coordinates>%.5f,%.5f,%.0f</coordinates></Point></Placemark>', (n1+1):nx, html.table[(n1+1):nx], when[(n1+1):nx], rep(as.integer(extrude), nt[i.line]), rep(altitudeMode, nt[i.line]), current.line.coords[[i.line]][,1], current.line.coords[[i.line]][,2], current.line.coords[[i.line]][,3])
+      txtl <- sprintf('<Placemark><styleUrl>#pnt_%s</styleUrl><description><![CDATA[%s]]></description><TimeStamp><when>%s</when></TimeStamp><Point><extrude>%.0f</extrude><altitudeMode>%s</altitudeMode><coordinates>%.5f,%.5f,%.0f</coordinates></Point></Placemark>', 
+                      (n1+1):nx, html.table[(n1+1):nx], when[(n1+1):nx], rep(as.integer(extrude), nt[i.line]), rep(altitudeMode, nt[i.line]), current.line.coords[[i.line]][,1], current.line.coords[[i.line]][,2], current.line.coords[[i.line]][,3])
     }
     else {
       if(length(html.table)>0 & any(!dtime==0)){  # with attributes / block temporal support 
@@ -192,7 +194,23 @@ kml_layer.trip <- function(
   
   # Writing Lines
   # =============
-  txtl <- sprintf('<Placemark><name>length: %.2f</name><styleUrl>#line_%s</styleUrl><LineString><altitudeMode>%s</altitudeMode><coordinates>%s</coordinates></LineString></Placemark>', unlist(ldist), 1:length(lv), rep(altitudeMode, length(lv)), paste(unlist(coords)))
+  #txtl <- sprintf('<Placemark><name>length: %.2f</name><styleUrl>#line_%s</styleUrl><LineString><altitudeMode>%s</altitudeMode><coordinates>%s</coordinates></LineString></Placemark>', unlist(ldist), 1:length(lv), rep(altitudeMode, length(lv)), paste(unlist(coords)))
+  xsegs <- trip::explode(tr)
+  coords_segs <-   unlist(lapply(xsegs@lines, function(a) lapply(a@Lines, slot, "coords")), recursive = FALSE)
+  coords_txt <- lapply(coords_segs, function(x) paste(t(cbind(x, 0)), collapse = ","))  ## will need the get Z and/or M for sf
+  tripID <- xsegs[["id"]]
+  linesegID <- unlist(lapply(split(tripID, tripID), seq_along))
+  segbegin <- format(xsegs[["starttime"]], "%Y-%m-%dT%H:%M:%S+00:00")
+  segend <- format(xsegs[["endtime"]], "%Y-%m-%dT%H:%M:%S+00:00")
+  
+  txtl <- sprintf('<Placemark><name>%s</name><styleUrl>#line_%s</styleUrl><TimeSpan><begin>%s</begin><end>%s</end></TimeSpan><LineString><altitudeMode>%s</altitudeMode><coordinates>%s</coordinates></LineString></Placemark>', 
+                  paste(tripID, linesegID, sep = "_") ,
+                  "$line_1",
+                  segbegin,
+                  segend,
+                  "clampToGround", 
+                  paste(unlist(coords_txt)))
+  
   
   parseXMLAndAdd(txtl, parent=pl1)
   
